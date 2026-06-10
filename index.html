@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DAEEE・同行集 - 情侣旅行记录平台</title>
+  <meta name="description" content="一路记账，一路写风，把朝夕与旅途都收好">
+  <link rel="stylesheet" href="styles/global.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <script src="https://webapi.amap.com/maps?v=1.4.15&key=您的高德地图APIKey"></script>
+</head>
+<body>
+  <nav id="main-nav" class="navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <span class="brand-logo"><i class="fas fa-heart"></i></span>
+        <span class="brand-name">DAEEE・同行集</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#home" class="nav-link active" data-section="home"><i class="fas fa-home"></i> 首页</a></li>
+        <li><a href="#diary" class="nav-link" data-section="diary"><i class="fas fa-book-open"></i> 旅行日记</a></li>
+        <li><a href="#map" class="nav-link" data-section="map"><i class="fas fa-map-marked-alt"></i> 足迹地图</a></li>
+        <li><a href="#plan" class="nav-link" data-section="plan"><i class="fas fa-route"></i> 行程规划</a></li>
+        <li><a href="#wishlist" class="nav-link" data-section="wishlist"><i class="fas fa-star"></i> 心愿清单</a></li>
+        <li><a href="#album" class="nav-link" data-section="album"><i class="fas fa-images"></i> 素材相册</a></li>
+        <li><a href="#profile" class="nav-link" data-section="profile"><i class="fas fa-heart"></i> 个人中心</a></li>
+      </ul>
+      <div class="nav-right">
+        <button id="login-btn" class="login-btn"><i class="fas fa-user"></i><span>登录</span></button>
+        <button class="nav-toggle" id="nav-toggle"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== 登录弹窗 ========== -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h3>用户登录</h3>
+      <form id="login-form">
+        <div class="form-group"><label>用户名</label><input type="text" id="username" placeholder="请输入用户名" required></div>
+        <div class="form-group"><label>密码</label><input type="password" id="password" placeholder="请输入密码" required></div>
+        <button type="submit" class="btn-primary">登录</button>
+        <p class="login-hint">默认账号：root，密码：123456</p>
+        <p class="register-link">还没有账号？<a href="#" id="show-register">立即注册</a></p>
+      </form>
+      <div id="login-message" class="message"></div>
+    </div>
+  </div>
+
+  <!-- ========== 注册弹窗 ========== -->
+  <div id="register-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h3>用户注册</h3>
+      <form id="register-form">
+        <div class="form-group"><label>用户名</label><input type="text" id="reg-username" placeholder="请输入用户名" required></div>
+        <div class="form-group"><label>密码</label><input type="password" id="reg-password" placeholder="请输入密码" required></div>
+        <div class="form-group"><label>昵称</label><input type="text" id="reg-nickname" placeholder="请输入昵称（可选）"></div>
+        <div class="form-group"><label>邮箱</label><input type="email" id="reg-email" placeholder="请输入邮箱（可选）"></div>
+        <button type="submit" class="btn-primary">注册</button>
+        <p class="register-link">已有账号？<a href="#" id="show-login">立即登录</a></p>
+      </form>
+      <div id="register-message" class="message"></div>
+    </div>
+  </div>
+
+  <main>
+    <!-- ==================== 首页 ==================== -->
+    <section id="home" class="section active">
+      <div class="hero-section">
+        <div class="hero-content">
+          <h1>DAEEE・同行集</h1>
+          <p class="hero-slogan">一路记账，一路写风，把朝夕与旅途都收好</p>
+        </div>
+        <div class="hero-scroll-indicator"><span></span></div>
+      </div>
+      <div class="dashboard-container">
+        <div class="dashboard-grid">
+          <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-info"><p class="stat-value" id="stat-trips">0</p><p class="stat-label">旅行次数</p></div></div>
+          <div class="stat-card clickable" id="cities-stat-card"><div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div><div class="stat-info"><p class="stat-value" id="stat-cities">0</p><p class="stat-label">到访城市</p></div></div>
+          <div class="stat-card"><div class="stat-icon"><i class="fas fa-book-open"></i></div><div class="stat-info"><p class="stat-value" id="stat-diaries">0</p><p class="stat-label">日记篇数</p></div></div>
+          <div class="stat-card"><div class="stat-icon"><i class="fas fa-heart"></i></div><div class="stat-info"><p class="stat-value" id="stat-wishes">0</p><p class="stat-label">心愿完成</p></div></div>
+        </div>
+        <div class="quick-access">
+          <div class="quick-card diary-preview">
+            <div class="card-header"><h3>最新日记</h3><span class="card-tag">我的旅行</span></div>
+            <p class="diary-excerpt" id="latest-diary-excerpt">开始记录你的第一次旅行日记吧...</p>
+            <div class="card-footer"><span class="date" id="latest-diary-date">今日</span><button class="btn-secondary" data-section="diary">写日记</button></div>
+          </div>
+          <div class="quick-card journey-progress">
+            <div class="card-header"><h3>足迹概览</h3><span class="card-tag">已到访</span></div>
+            <div class="mini-map-container"><div class="mini-map"><svg viewBox="0 0 400 200" class="china-outline"><path d="M80,80 Q100,60 120,70 T160,65 T200,75 T240,70 T280,80 T320,75" fill="none" stroke="#E8A87C" stroke-width="1.5" opacity="0.5"/><path d="M100,100 Q120,90 140,100 T180,95 T220,105 T260,100" fill="none" stroke="#E8A87C" stroke-width="1.5" opacity="0.5"/></svg><div class="map-markers" id="mini-map-markers"></div></div></div>
+            <p class="progress-text" id="visited-text">还没有到访任何城市</p>
+            <div class="card-footer"><span class="date">添加足迹</span><button class="btn-secondary" data-section="map">去记录</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="quote-section"><div class="quote-card"><p class="quote-text">"旅行的意义，不在于目的地，而在于与你同行的每一个瞬间。"</p><p class="quote-author">—— DAEEE</p></div></div>
+    </section>
+
+    <!-- ==================== 旅行日记 ==================== -->
+    <section id="diary" class="section">
+      <div class="section-header"><h2>旅行日记</h2><p>记录每一段美好的旅途时光</p></div>
+      <div class="diary-container">
+        <div class="diary-toolbar">
+          <button class="btn-primary" id="new-diary-btn"><i class="fas fa-plus"></i> 写日记</button>
+          <div class="diary-filters">
+            <select id="diary-city-filter"><option value="">全部城市</option></select>
+          </div>
+        </div>
+        <div class="diary-list" id="diary-list">
+          <div class="empty-state"><i class="fas fa-book-open"></i><p>还没有日记，开始记录你的旅行故事吧</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 日记编辑弹窗 -->
+    <div id="diary-modal" class="modal">
+      <div class="modal-content" style="max-width:600px;">
+        <span class="close-modal">&times;</span>
+        <h3 id="diary-modal-title">写日记</h3>
+        <form id="diary-form" enctype="multipart/form-data">
+          <div class="form-group"><label>标题</label><input type="text" id="diary-title" name="title" placeholder="给你的日记起个名字" required></div>
+          <div class="form-group"><label>关联城市</label><select id="diary-city" name="city_id"><option value="">不关联城市</option></select></div>
+          <div class="form-group"><label>内容</label><textarea id="diary-content" name="content" placeholder="记录下这段旅程的点滴..." required></textarea></div>
+          <div class="form-group"><label>封面图片</label><div class="upload-area" id="diary-upload-area"><i class="fas fa-upload upload-icon"></i><p class="upload-text">点击上传封面图片</p><input type="file" id="diary-cover-image" name="cover_image" accept="image/*" class="upload-input"></div></div>
+          <div class="form-group"><label>隐私设置</label><select id="diary-privacy" name="privacy_level"><option value="private">仅自己可见</option><option value="friends">伴侣可见</option><option value="public">公开</option></select></div>
+          <input type="hidden" id="diary-edit-id">
+          <div class="form-actions"><button type="submit" class="btn-primary">保存日记</button><button type="button" class="btn-secondary close-diary-modal">取消</button></div>
+        </form>
+        <div id="diary-message" class="message"></div>
+      </div>
+    </div>
+
+    <!-- ==================== 足迹地图 ==================== -->
+    <section id="map" class="section">
+      <div class="section-header"><h2>足迹地图</h2><p>标记你们走过的每一座城市</p></div>
+      <div class="map-container">
+        <div class="map-controls">
+          <div class="filter-tabs"><button class="filter-btn active" data-year="all">全部</button></div>
+          <button class="btn-secondary" id="add-footprint-btn"><i class="fas fa-plus"></i> 添加足迹点</button>
+        </div>
+        <div class="city-selector"><label>选择城市：</label><select id="city-select"><option value="">请选择城市</option></select></div>
+        <div class="map-wrapper">
+          <div id="amap-container" class="amap-container"></div>
+          <div id="map-legend">
+            <div class="legend-item"><span class="legend-dot visited"></span><span>已到访</span></div>
+            <div class="legend-item"><span class="legend-dot footprint"></span><span>足迹点</span></div>
+          </div>
+        </div>
+        <div class="city-summary" id="city-summary">
+          <h3>已到访城市</h3>
+          <div class="city-list" id="visited-cities-list">
+            <div class="empty-state small"><p>还没有到访任何城市</p><p class="hint">添加足迹点后自动记录到访城市</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 添加足迹弹窗 -->
+    <div id="add-footprint-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>添加足迹点</h3>
+        <form id="footprint-form" enctype="multipart/form-data">
+          <div class="form-group"><label>选择城市</label><select id="footprint-city" name="city_id" required><option value="">请选择城市</option></select></div>
+          <div class="form-group"><label>地点名称</label><input type="text" id="footprint-name" name="name" placeholder="例如：洪崖洞" required></div>
+          <div class="form-group"><label>介绍描述</label><textarea id="footprint-desc" name="description" placeholder="简单描述一下这个地方..." required></textarea></div>
+          <div class="form-group"><label>上传图片</label><div class="upload-area" id="upload-area"><i class="fas fa-upload upload-icon"></i><p class="upload-text">点击或拖拽上传图片</p><input type="file" id="footprint-image" name="image" accept="image/*" class="upload-input"></div></div>
+          <div class="form-actions"><button type="submit" class="btn-primary">添加足迹</button><button type="button" id="reset-location-btn" class="btn-secondary" style="display:none;">重新选择位置</button></div>
+        </form>
+        <div id="footprint-message" class="message"></div>
+      </div>
+    </div>
+
+    <!-- ==================== 行程规划 ==================== -->
+    <section id="plan" class="section">
+      <div class="section-header"><h2>行程规划</h2><p>规划你们的下一次旅行</p></div>
+      <div class="plan-container">
+        <div class="plan-sidebar">
+          <div class="plan-list" id="plan-list">
+            <div class="empty-state small"><p>暂无行程规划</p></div>
+          </div>
+          <button class="btn-primary" id="new-plan-btn"><i class="fas fa-plus"></i> 新建行程</button>
+        </div>
+        <div class="plan-detail" id="plan-detail">
+          <div class="empty-state"><i class="fas fa-map"></i><p>选择一个行程查看详情</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 行程编辑弹窗 -->
+    <div id="plan-modal" class="modal">
+      <div class="modal-content" style="max-width:560px;">
+        <span class="close-modal">&times;</span>
+        <h3 id="plan-modal-title">新建行程</h3>
+        <form id="plan-form">
+          <div class="form-group"><label>行程标题</label><input type="text" id="plan-title" placeholder="例如：三天两夜成都之旅" required></div>
+          <div class="form-row">
+            <div class="form-group"><label>开始日期</label><input type="date" id="plan-start"></div>
+            <div class="form-group"><label>结束日期</label><input type="date" id="plan-end"></div>
+          </div>
+          <div class="form-group"><label>预算 (¥)</label><input type="number" id="plan-budget" placeholder="预计花费"></div>
+          <div class="form-group"><label>状态</label><select id="plan-status"><option value="planning">规划中</option><option value="in_progress">进行中</option><option value="completed">已完成</option></select></div>
+          <input type="hidden" id="plan-edit-id">
+          <div class="form-actions"><button type="submit" class="btn-primary">保存行程</button><button type="button" class="btn-secondary close-plan-modal">取消</button></div>
+        </form>
+        <div id="plan-message" class="message"></div>
+      </div>
+    </div>
+
+    <!-- 日程项目弹窗 -->
+    <div id="plan-item-modal" class="modal">
+      <div class="modal-content" style="max-width:480px;">
+        <span class="close-modal">&times;</span>
+        <h3 id="plan-item-modal-title">添加日程</h3>
+        <form id="plan-item-form">
+          <div class="form-group"><label>时间</label><input type="text" id="plan-item-time" placeholder="例如：09:00-11:00"></div>
+          <div class="form-group"><label>项目名称</label><input type="text" id="plan-item-title" placeholder="例如：参观大熊猫基地" required></div>
+          <div class="form-group"><label>描述</label><textarea id="plan-item-desc" placeholder="简单描述..."></textarea></div>
+          <div class="form-group"><label>地点</label><input type="text" id="plan-item-location" placeholder="具体地址或地点名"></div>
+          <input type="hidden" id="plan-item-day-id"><input type="hidden" id="plan-item-edit-id">
+          <div class="form-actions"><button type="submit" class="btn-primary">保存</button><button type="button" class="btn-secondary close-plan-item-modal">取消</button></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== 心愿清单 ==================== -->
+    <section id="wishlist" class="section">
+      <div class="section-header"><h2>心愿清单</h2><p>记录想去的地方和想做的事</p></div>
+      <div class="wishlist-container">
+        <div class="wishlist-toolbar">
+          <button class="btn-primary" id="new-wish-btn"><i class="fas fa-plus"></i> 添加心愿</button>
+          <div class="wishlist-tabs">
+            <button class="tab-btn active" data-type="all">全部</button>
+            <button class="tab-btn" data-type="destination">目的地</button>
+            <button class="tab-btn" data-type="experience">体验项目</button>
+            <button class="tab-btn" data-type="food">特色美食</button>
+          </div>
+        </div>
+        <div class="wishlist-grid" id="wishlist-grid">
+          <div class="empty-state"><i class="fas fa-star"></i><p>还没有心愿，添加一个吧</p></div>
+        </div>
+        <div class="wishlist-stats">
+          <div class="stat-item"><span class="stat-num" id="wish-total">0</span><span class="stat-label">总心愿</span></div>
+          <div class="stat-item"><span class="stat-num" id="wish-done">0</span><span class="stat-label">已完成</span></div>
+          <div class="stat-item"><span class="stat-num" id="wish-pending">0</span><span class="stat-label">待实现</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 心愿编辑弹窗 -->
+    <div id="wish-modal" class="modal">
+      <div class="modal-content" style="max-width:480px;">
+        <span class="close-modal">&times;</span>
+        <h3 id="wish-modal-title">添加心愿</h3>
+        <form id="wish-form">
+          <div class="form-group"><label>心愿标题</label><input type="text" id="wish-title" placeholder="例如：去北海道看雪" required></div>
+          <div class="form-group"><label>类型</label><select id="wish-type"><option value="destination">目的地</option><option value="experience">体验项目</option><option value="food">特色美食</option></select></div>
+          <div class="form-group"><label>描述</label><textarea id="wish-desc" placeholder="描述一下这个心愿..."></textarea></div>
+          <div class="form-group"><label>优先级</label><select id="wish-priority"><option value="high">高优先级</option><option value="medium" selected>中等</option><option value="low">低优先级</option></select></div>
+          <input type="hidden" id="wish-edit-id">
+          <div class="form-actions"><button type="submit" class="btn-primary">保存心愿</button><button type="button" class="btn-secondary close-wish-modal">取消</button></div>
+        </form>
+        <div id="wish-message" class="message"></div>
+      </div>
+    </div>
+
+    <!-- ==================== 素材相册 ==================== -->
+    <section id="album" class="section">
+      <div class="section-header"><h2>素材相册</h2><p>珍藏每一个美好的瞬间</p></div>
+      <div class="album-container">
+        <div class="album-toolbar">
+          <button class="btn-primary" id="new-album-btn"><i class="fas fa-plus"></i> 创建相册</button>
+        </div>
+        <div class="album-grid" id="album-grid">
+          <div class="empty-state"><i class="fas fa-images"></i><p>还没有相册，创建一个吧</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 相册详情/上传弹窗 -->
+    <div id="album-detail-modal" class="modal">
+      <div class="modal-content" style="max-width:700px;">
+        <span class="close-modal">&times;</span>
+        <h3 id="album-detail-title">相册</h3>
+        <div class="album-detail-toolbar">
+          <div class="upload-area" id="album-upload-area" style="padding:1rem;"><i class="fas fa-upload upload-icon"></i><p class="upload-text">点击上传照片</p><input type="file" id="album-photo-input" accept="image/*" class="upload-input"></div>
+        </div>
+        <div class="album-photo-grid" id="album-photo-grid">
+          <div class="empty-state small"><p>相册中还没有照片</p></div>
+        </div>
+        <input type="hidden" id="current-album-id">
+        <div id="album-message" class="message"></div>
+      </div>
+    </div>
+
+    <!-- 相册编辑弹窗 -->
+    <div id="album-modal" class="modal">
+      <div class="modal-content" style="max-width:440px;">
+        <span class="close-modal">&times;</span>
+        <h3 id="album-modal-title">创建相册</h3>
+        <form id="album-form">
+          <div class="form-group"><label>相册名称</label><input type="text" id="album-name" placeholder="例如：2024厦门之旅" required></div>
+          <div class="form-group"><label>描述</label><textarea id="album-desc" placeholder="简单描述这个相册..."></textarea></div>
+          <input type="hidden" id="album-edit-id">
+          <div class="form-actions"><button type="submit" class="btn-primary">保存相册</button><button type="button" class="btn-secondary close-album-modal">取消</button></div>
+        </form>
+        <div id="album-form-message" class="message"></div>
+      </div>
+    </div>
+
+    <!-- ==================== 个人中心 ==================== -->
+    <section id="profile" class="section">
+      <div class="section-header"><h2>个人中心</h2><p>管理你的账号和情侣绑定</p></div>
+      <div class="profile-container">
+        <div class="profile-card" id="profile-info-card">
+          <div class="profile-avatar"><i class="fas fa-user-circle"></i></div>
+          <div class="profile-details">
+            <h3 id="profile-nickname">未登录</h3>
+            <p id="profile-username" class="profile-username">请先登录</p>
+            <p id="profile-email" class="profile-email"></p>
+          </div>
+        </div>
+        <div class="couple-section">
+          <div class="section-header"><h3><i class="fas fa-heart"></i> 情侣绑定</h3></div>
+          <div id="couple-none" class="couple-state">
+            <div class="couple-empty"><i class="fas fa-heart-broken"></i><p>你还没有绑定情侣</p><p class="hint">生成邀请码并分享给对方，一起记录旅行足迹吧</p></div>
+            <div class="couple-actions">
+              <button class="btn-primary" id="generate-invite-btn"><i class="fas fa-link"></i> 生成邀请码</button>
+              <div class="couple-divider"><span>或</span></div>
+              <div class="invite-accept-group">
+                <input type="text" id="invite-code-input" class="invite-code-input" placeholder="输入对方邀请码" maxlength="6" autocomplete="off">
+                <button class="btn-secondary" id="accept-invite-btn"><i class="fas fa-check"></i> 接受邀请</button>
+              </div>
+            </div>
+          </div>
+          <div id="couple-pending" class="couple-state" style="display:none;">
+            <div class="couple-pending-card">
+              <div class="pending-icon"><i class="fas fa-clock"></i></div>
+              <h4>邀请已生成</h4>
+              <p class="pending-hint">将邀请码发送给你的伴侣，等待对方接受</p>
+              <div class="invite-code-display"><span class="code-label">邀请码</span><span class="code-value" id="pending-invite-code"></span><button class="btn-copy" id="copy-invite-btn" title="复制邀请码"><i class="fas fa-copy"></i></button></div>
+              <p class="expire-countdown" id="expire-countdown"></p>
+              <button class="btn-secondary" id="cancel-invite-btn"><i class="fas fa-times"></i> 取消邀请</button>
+            </div>
+          </div>
+          <div id="couple-bound" class="couple-state" style="display:none;">
+            <div class="couple-bound-card">
+              <div class="bound-hearts">
+                <div class="heart-left"><i class="fas fa-heart"></i><span class="heart-nickname" id="my-nickname"></span></div>
+                <div class="heart-center"><i class="fas fa-infinity"></i></div>
+                <div class="heart-right"><i class="fas fa-heart"></i><span class="heart-nickname" id="partner-nickname"></span></div>
+              </div>
+              <p class="bound-date" id="bound-date"></p>
+              <p class="bound-hint">你们已绑定成功，足迹、日记、心愿数据将自动共享</p>
+              <button class="btn-danger" id="unbind-btn"><i class="fas fa-unlink"></i> 解除绑定</button>
+            </div>
+          </div>
+          <div id="unbind-confirm-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+              <span class="close-modal" id="close-unbind-modal">&times;</span>
+              <h3><i class="fas fa-exclamation-triangle" style="color:#E74C3C;"></i> 确认解除绑定</h3>
+              <p class="unbind-warning">解除绑定后，你们将无法再看到对方的足迹数据。</p>
+              <p class="unbind-warning">此操作不可撤销，确定要继续吗？</p>
+              <div class="form-actions"><button class="btn-danger" id="confirm-unbind-btn">确认解除</button><button class="btn-secondary" id="cancel-unbind-btn">取消</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand"><span class="brand-logo"><i class="fas fa-heart"></i></span><span class="brand-name">DAEEE・同行集</span></div>
+      <p class="footer-slogan">一路记账，一路写风，把朝夕与旅途都收好</p>
+      <div class="footer-links">
+        <a href="#home">首页</a><a href="#diary">旅行日记</a><a href="#map">足迹地图</a><a href="#plan">行程规划</a><a href="#wishlist">心愿清单</a><a href="#album">素材相册</a>
+      </div>
+      <p class="footer-copyright">© 2024 DAEEE・同行集. 保留所有权利.</p>
+    </div>
+  </footer>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>

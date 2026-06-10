@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node server.js)",
+      "Bash(curl -s http://localhost:3000/api/health)",
+      "Bash(node -e \"console.log\\('Node works'\\)\")",
+      "Bash(curl -s http://localhost:3000/index.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/styles/global.css)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/scripts/main.js)",
+      "Bash(timeout 5 node -e ' *)",
+      "Bash(node --check server.js)",
+      "Bash(node --check scripts/main.js)",
+      "Bash(node --check tests/couple_bind.test.js)",
+      "Bash(npm start *)",
+      "Bash(npm --version)",
+      "Bash(sc query *)",
+      "Bash(netstat -ano)",
+      "Bash(tasklist //FI \"PID eq 27752\" //FO CSV //NH)",
+      "Bash(ps -p 27752 -o comm=)",
+      "Bash(curl -s -o NUL -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(curl -s -X POST http://localhost:3000/api/login -H \"Content-Type: application/json\" -d \"{\\\\\"username\\\\\":\\\\\"root\\\\\",\\\\\"password\\\\\":\\\\\"123456\\\\\"}\")",
+      "Bash(taskkill //PID 27752 //F)",
+      "Bash(curl -s -X POST http://localhost:3000/api/couple/generate-invite -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJyb290IiwiaWF0IjoxNzgxMDI4OTI1LCJleHAiOjE3ODEwMzI1MjV9.FbAuTLFiShSQZN0yv18UQKjXVABlyxJEUgtnmDFIX6k' -H 'Content-Type: application/json')",
+      "Bash(pkill -f \"node server.js\")",
+      "Bash(taskkill //PID 31556 //F)"
+    ]
+  }
+}

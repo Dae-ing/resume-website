@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ww・同行集 - 后台管理</title>
+  <link rel="stylesheet" href="styles/global.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #C38D9E;
+      --secondary-color: #E8A87C;
+      --accent-color: #F5E6D3;
+      --bg-light: #FFF8F0;
+      --text-dark: #4A4A4A;
+      --text-light: #8E8E8E;
+      --border-color: #E8E8E8;
+      --success-color: #6BBF59;
+      --danger-color: #E74C3C;
+      --warning-color: #F39C12;
+    }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .admin-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .admin-sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #4A4A4A 0%, #2C2C2C 100%);
+      color: white;
+      padding: 20px;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .admin-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 20px;
+    }
+
+    .admin-logo i {
+      font-size: 28px;
+      color: #C38D9E;
+    }
+
+    .admin-logo h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .admin-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .admin-nav li {
+      margin-bottom: 8px;
+    }
+
+    .admin-nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 15px;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .admin-nav a:hover,
+    .admin-nav a.active {
+      background: rgba(195, 141, 158, 0.3);
+      color: white;
+    }
+
+    .admin-nav a i {
+      width: 20px;
+    }
+
+    .admin-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: 30px;
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .content-header h2 {
+      font-size: 24px;
+      color: #4A4A4A;
+      margin: 0;
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #E74C3C;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .stat-card .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .stat-card.users .stat-icon {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .stat-card.footprints .stat-icon {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .stat-card.cities .stat-icon {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .stat-card.visited .stat-icon {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .stat-icon i {
+      font-size: 24px;
+      color: white;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #4A4A4A;
+      margin: 0 0 5px 0;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #8E8E8E;
+      margin: 0;
+    }
+
+    .data-table {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    .table-header {
+      padding: 20px;
+      border-bottom: 1px solid #E8E8E8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .table-header h3 {
+      margin: 0;
+      color: #4A4A4A;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      padding: 10px 35px 10px 15px;
+      border: 1px solid #E8E8E8;
+      border-radius: 8px;
+      width: 200px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .search-box input:focus {
+      border-color: #C38D9E;
+    }
+
+    .search-box i {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #8E8E8E;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 15px 20px;
+      text-align: left;
+      border-bottom: 1px solid #F0F0F0;
+    }
+
+    th {
+      background: #FFF8F0;
+      font-weight: 600;
+      color: #4A4A4A;
+      font-size: 14px;
+    }
+
+    td {
+      color: #666;
+      font-size: 14px;
+    }
+
+    tr:hover {
+      background: #FFF8F0;
+    }
+
+    .btn {
+      padding: 6px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-danger {
+      background: #FFF0F0;
+      color: #E74C3C;
+    }
+
+    .btn-danger:hover {
+      background: #FFE0E0;
+    }
+
+    .btn-view {
+      background: #F0F8FF;
+      color: #3498DB;
+    }
+
+    .btn-view:hover {
+      background: #E0F0FF;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #8E8E8E;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .modal-content h3 {
+      margin: 0 0 20px 0;
+      color: #4A4A4A;
+    }
+
+    .modal-content p {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-secondary {
+      background: #F5F5F5;
+      color: #666;
+    }
+
+    .btn-secondary:hover {
+      background: #E8E8E8;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #C38D9E 0%, #E8A87C 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .error-message {
+      background: #FFF0F0;
+      color: #E74C3C;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C38D9E 0%, #E8A87C 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+
+      .admin-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      th, td {
+        padding: 10px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <i class="fas fa-heart"></i>
+        <h1>DAEEE 管理后台</h1>
+      </div>
+      <ul class="admin-nav">
+        <li><a href="#" class="active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> 数据概览</a></li>
+        <li><a href="#" data-tab="users"><i class="fas fa-users"></i> 用户管理</a></li>
+        <li><a href="#" data-tab="footprints"><i class="fas fa-map-marker-alt"></i> 足迹管理</a></li>
+        <li><a href="#" data-tab="cities"><i class="fas fa-city"></i> 城市管理</a></li>
+        <li><a href="index.html" target="_blank"><i class="fas fa-home"></i> 返回首页</a></li>
+      </ul>
+    </aside>
+
+    <main class="admin-content">
+      <div class="content-header">
+        <h2 id="page-title">数据概览</h2>
+        <button class="logout-btn" id="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>退出登录</span>
+        </button>
+      </div>
+
+      <div id="error-message" class="error-message"></div>
+
+      <div id="dashboard-tab" class="tab-content">
+        <div class="stats-grid">
+          <div class="stat-card users">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <p class="stat-value" id="stat-users">0</p>
+            <p class="stat-label">注册用户</p>
+          </div>
+          <div class="stat-card footprints">
+            <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <p class="stat-value" id="stat-footprints">0</p>
+            <p class="stat-label">足迹总数</p>
+          </div>
+          <div class="stat-card cities">
+            <div class="stat-icon"><i class="fas fa-city"></i></div>
+            <p class="stat-value" id="stat-cities">0</p>
+            <p class="stat-label">城市数量</p>
+          </div>
+          <div class="stat-card visited">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <p class="stat-value" id="stat-visited">0</p>
+            <p class="stat-label">到访记录</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="users-tab" class="tab-content" style="display: none;">
+        <div class="data-table">
+          <div class="table-header">
+            <h3>用户列表</h3>
+            <div class="search-box">
+              <input type="text" id="user-search" placeholder="搜索用户...">
+              <i class="fas fa-search"></i>
+            </div>
+          </div>
+          <table id="users-table">
+            <thead>
+              <tr>
+                <th>头像</th>
+                <th>用户名</th>
+                <th>昵称</th>
+                <th>邮箱</th>
+                <th>注册时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body">
+              <tr><td colspan="6" class="empty-state"><i class="fas fa-users"></i><p>加载中...</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="footprints-tab" class="tab-content" style="display: none;">
+        <div class="data-table">
+          <div class="table-header">
+            <h3>足迹列表</h3>
+            <div class="search-box">
+              <input type="text" id="footprint-search" placeholder="搜索足迹...">
+              <i class="fas fa-search"></i>
+            </div>
+          </div>
+          <table id="footprints-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>用户</th>
+                <th>城市</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>创建时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="footprints-table-body">
+              <tr><td colspan="7" class="empty-state"><i class="fas fa-map-marker-alt"></i><p>加载中...</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="cities-tab" class="tab-content" style="display: none;">
+        <div class="data-table">
+          <div class="table-header">
+            <h3>城市列表</h3>
+            <div class="search-box">
+              <input type="text" id="city-search" placeholder="搜索城市...">
+              <i class="fas fa-search"></i>
+            </div>
+          </div>
+          <table id="cities-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>城市名称</th>
+                <th>英文名</th>
+                <th>所属省份</th>
+                <th>描述</th>
+                <th>坐标</th>
+              </tr>
+            </thead>
+            <tbody id="cities-table-body">
+              <tr><td colspan="6" class="empty-state"><i class="fas fa-city"></i><p>加载中...</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal-content">
+      <h3>确认删除</h3>
+      <p id="confirm-message">确定要删除吗？</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancel-btn">取消</button>
+        <button class="btn btn-danger" id="confirm-btn">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:3000/api';
+    let token = localStorage.getItem('token');
+    let currentUser = null;
+
+    async function checkAuth() {
+      if (!token) {
+        window.location.href = 'index.html';
+        return false;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/user`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+          throw new Error('Unauthorized');
+        }
+        currentUser = await response.json();
+        return true;
+      } catch {
+        localStorage.removeItem('token');
+        window.location.href = 'index.html';
+        return false;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = await checkAuth();
+      if (!auth) return;
+
+      loadStatistics();
+      loadUsers();
+      loadFootprints();
+      loadCities();
+
+      document.querySelectorAll('.admin-nav a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.admin-nav a').forEach(a => a.classList.remove('active'));
+          this.classList.add('active');
+          
+          const tab = this.getAttribute('data-tab');
+          document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+          document.getElementById(`${tab}-tab`).style.display = 'block';
+          document.getElementById('page-title').textContent = getTabTitle(tab);
+        });
+      });
+
+      document.getElementById('logout-btn').addEventListener('click', logout);
+
+      document.getElementById('user-search').addEventListener('input', filterUsers);
+      document.getElementById('footprint-search').addEventListener('input', filterFootprints);
+      document.getElementById('city-search').addEventListener('input', filterCities);
+
+      document.getElementById('cancel-btn').addEventListener('click', closeModal);
+      document.getElementById('confirm-btn').addEventListener('click', executeDelete);
+    });
+
+    function getTabTitle(tab) {
+      const titles = {
+        dashboard: '数据概览',
+        users: '用户管理',
+        footprints: '足迹管理',
+        cities: '城市管理'
+      };
+      return titles[tab] || '数据概览';
+    }
+
+    async function loadStatistics() {
+      try {
+        const response = await fetch(`${API_BASE}/admin/statistics`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Failed to load stats');
+        const stats = await response.json();
+        
+        document.getElementById('stat-users').textContent = stats.totalUsers;
+        document.getElementById('stat-footprints').textContent = stats.totalFootprints;
+        document.getElementById('stat-cities').textContent = stats.totalCities;
+        document.getElementById('stat-visited').textContent = stats.totalVisited;
+      } catch (error) {
+        showError('加载统计数据失败');
+      }
+    }
+
+    let allUsers = [];
+    async function loadUsers() {
+      try {
+        const response = await fetch(`${API_BASE}/admin/users`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Failed to load users');
+        allUsers = await response.json();
+        renderUsers(allUsers);
+      } catch (error) {
+        showError('加载用户列表失败');
+        document.getElementById('users-table-body').innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-users"></i><p>加载失败</p></td></tr>';
+      }
+    }
+
+    function renderUsers(users) {
+      const tbody = document.getElementById('users-table-body');
+      if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-users"></i><p>暂无用户</p></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = users.map(user => `
+        <tr>
+          <td><div class="user-avatar">${user.nickname ? user.nickname[0] : user.username[0]}</div></td>
+          <td>${user.username} ${user.username === 'root' ? '<span style="color: #C38D9E; font-size: 12px;">(管理员)</span>' : ''}</td>
+          <td>${user.nickname || '-'}</td>
+          <td>${user.email || '-'}</td>
+          <td>${formatDate(user.created_at)}</td>
+          <td>
+            ${user.username !== 'root' ? `<button class="btn btn-danger" onclick="confirmDelete('user', ${user.id}, '${user.username}')"><i class="fas fa-trash"></i> 删除</button>` : '<span style="color: #8E8E8E; font-size: 12px;">不可删除</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterUsers() {
+      const keyword = document.getElementById('user-search').value.toLowerCase();
+      const filtered = allUsers.filter(u => 
+        u.username.toLowerCase().includes(keyword) ||
+        u.nickname?.toLowerCase().includes(keyword) ||
+        u.email?.toLowerCase().includes(keyword)
+      );
+      renderUsers(filtered);
+    }
+
+    let allFootprints = [];
+    async function loadFootprints() {
+      try {
+        const response = await fetch(`${API_BASE}/admin/footprints`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Failed to load footprints');
+        allFootprints = await response.json();
+        renderFootprints(allFootprints);
+      } catch (error) {
+        showError('加载足迹列表失败');
+        document.getElementById('footprints-table-body').innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-map-marker-alt"></i><p>加载失败</p></td></tr>';
+      }
+    }
+
+    function renderFootprints(footprints) {
+      const tbody = document.getElementById('footprints-table-body');
+      if (footprints.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-map-marker-alt"></i><p>暂无足迹</p></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = footprints.map(f => `
+        <tr>
+          <td>${f.id}</td>
+          <td>${f.user_name}</td>
+          <td>${f.city_name}</td>
+          <td>${f.name}</td>
+          <td>${f.description?.substring(0, 30)}${f.description?.length > 30 ? '...' : ''}</td>
+          <td>${formatDate(f.created_at)}</td>
+          <td>
+            <button class="btn btn-danger" onclick="confirmDelete('footprint', ${f.id}, '${f.name}')"><i class="fas fa-trash"></i> 删除</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterFootprints() {
+      const keyword = document.getElementById('footprint-search').value.toLowerCase();
+      const filtered = allFootprints.filter(f => 
+        f.name.toLowerCase().includes(keyword) ||
+        f.city_name.toLowerCase().includes(keyword) ||
+        f.user_name.toLowerCase().includes(keyword)
+      );
+      renderFootprints(filtered);
+    }
+
+    let allCities = [];
+    async function loadCities() {
+      try {
+        const response = await fetch(`${API_BASE}/cities`);
+        if (!response.ok) throw new Error('Failed to load cities');
+        allCities = await response.json();
+        renderCities(allCities);
+      } catch (error) {
+        showError('加载城市列表失败');
+        document.getElementById('cities-table-body').innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-city"></i><p>加载失败</p></td></tr>';
+      }
+    }
+
+    function renderCities(cities) {
+      const tbody = document.getElementById('cities-table-body');
+      if (cities.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-city"></i><p>暂无城市</p></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = cities.map(c => `
+        <tr>
+          <td>${c.id}</td>
+          <td>${c.name}</td>
+          <td>${c.name_en}</td>
+          <td>${c.province}</td>
+          <td>${c.description?.substring(0, 20)}${c.description?.length > 20 ? '...' : ''}</td>
+          <td>${c.latitude}, ${c.longitude}</td>
+        </tr>
+      `).join('');
+    }
+
+    function filterCities() {
+      const keyword = document.getElementById('city-search').value.toLowerCase();
+      const filtered = allCities.filter(c => 
+        c.name.toLowerCase().includes(keyword) ||
+        c.name_en.toLowerCase().includes(keyword) ||
+        c.province.toLowerCase().includes(keyword)
+      );
+      renderCities(filtered);
+    }
+
+    let deleteConfig = null;
+    function confirmDelete(type, id, name) {
+      deleteConfig = { type, id, name };
+      document.getElementById('confirm-message').textContent = `确定要删除 "${name}" 吗？此操作不可撤销。`;
+      document.getElementById('confirm-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('confirm-modal').classList.remove('active');
+      deleteConfig = null;
+    }
+
+    async function executeDelete() {
+      if (!deleteConfig) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/admin/${deleteConfig.type}s/${deleteConfig.id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          closeModal();
+          if (deleteConfig.type === 'user') {
+            loadUsers();
+            loadStatistics();
+          } else if (deleteConfig.type === 'footprint') {
+            loadFootprints();
+            loadStatistics();
+          }
+        } else {
+          const data = await response.json();
+          showError(data.message || '删除失败');
+        }
+      } catch (error) {
+        showError('删除失败');
+      }
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.textContent = message;
+      errorDiv.classList.add('show');
+      setTimeout(() => errorDiv.classList.remove('show'), 3000);
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
